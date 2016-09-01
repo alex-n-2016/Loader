@@ -1,0 +1,60 @@
+#!/bin/bash
+#
+# Environment Variables:
+#
+#   JAVA_HOME        The java implementation to use.  Overrides JAVA_HOME.
+#
+
+bin=`dirname "$0"`
+bin=`cd "$bin">/dev/null; pwd`
+
+# This will set BOT_HOME, etc.
+. "$bin"/config.sh
+
+
+# if no args specified, show usage
+if [ $# = 0 ]; then
+  cat 1>&2 <<EOF                                    |
+Uploader Bot
+Usage:
+command [arguments]
+Available commands:
+    schedule	Add filenames to resize queue
+    resize 	Resize next images from the queue
+    status 	Output current status in format %queue%:%number_of_images%
+    upload 	Upload next images to remote storage
+    retry	Moves all URLs from failed queue back to resize queue.
+EOF
+  exit 1
+  exit 1
+fi
+
+# get arguments
+COMMAND=$1
+shift
+VERSION=0.0.1-SNAPSHOT
+
+JAVA=$JAVA_HOME/bin/java
+
+
+# figure out which class to run
+if [ "$COMMAND" = "schedule" ] ; then
+  echo "Usage: bot schedule ./images"
+  exec "$JAVA" -jar "$BOT_HOME/scheduler/target/scheduler-$VERSION.jar" "$@"
+elif [ "$COMMAND" = "resize" ] ; then
+  echo "Usage: bot resize [-n <count>]"
+   exec "$JAVA" -jar "$BOT_HOME/resizer/target/resizer-$VERSION.jar" "$@"
+elif [ "$COMMAND" = "status" ] ; then
+  exec "$JAVA" -jar "$BOT_HOME/statistics/target/statistics-$VERSION.jar" "$@"
+elif [ "$COMMAND" = "upload" ] ; then
+  echo "Usage: bot upload [-n <count>]"
+  exec "$JAVA" -jar "$BOT_HOME/uploader/target/uploader-$VERSION.jar" "$@"
+elif [ "$COMMAND" = "retry" ] ; then
+  echo "Usage: bot retry [-n <count>]"
+  exec "$JAVA" -jar "$BOT_HOME/uploader/target/uploader-$VERSION.jar" "$@" --r
+else
+  echo "The command is not found"
+  exit 1
+fi
+
+
