@@ -30,6 +30,11 @@ public class RabbitConfig {
 
     @Bean
     public RabbitTemplate rabbitTemplate() {
+        AmqpAdmin amqpAdmin = amqpAdmin();
+        amqpAdmin.declareQueue(new Queue(QUEUE_RESIZE));
+        amqpAdmin.declareQueue(new Queue(QUEUE_UPLOAD));
+        amqpAdmin.declareQueue(new Queue(QUEUE_DONE));
+        amqpAdmin.declareQueue(new Queue(QUEUE_FAILED));
         return new RabbitTemplate(connectionFactory());
     }
 
